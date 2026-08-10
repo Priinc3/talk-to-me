@@ -16,3 +16,18 @@
 local.properties
 .env
 debug.keystore
+
+# Secrets — never commit
+# GCP / Vertex AI service account keys
+project-*.json
+*-service-account*.json
+service-account*.json
+*.pem
+*.p12
+*.jks
+*.keystore
+!debug.keystore.example
+# Supabase local config
+.env.*
+!.env.example
+supabase/.temp/

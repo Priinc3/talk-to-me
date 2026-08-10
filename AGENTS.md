@@ -35,8 +35,17 @@ Voice productivity Android app — press-to-talk → AI intent parsing → creat
 ./gradlew test --tests "com.example.ExampleUnitTest"
 ```
 
+> **Planning `v1` rewrite in progress — read `REQUIREMENTS.md` first.** It supersedes
+> parts of this file: zen.ai is being replaced by Gemini Live API via Vertex AI behind a
+> Supabase Edge Function proxy, and the Parakeet/Piper download UI is being removed.
+
 ## Gotchas
-- **`BentoActiveAlarmCard` is missing**: `MainActivity.kt:142` imports a composable that does not exist in `ui/components/`. Will crash at compile time if the reference isn't resolved.
+- **No Gradle wrapper in the repo.** Every `./gradlew` command below is unrunnable until one is added (Phase 0). Build-ability is unverified.
+- **`./gradlew test` cannot compile**: `GreetingScreenshotTest.kt:24` calls a `Greeting` composable that does not exist anywhere in the source tree.
+- **`BentoActiveAlarmCard` DOES exist** — at `BentoNextEventCard.kt:98`, as a second composable in that file, resolved via the wildcard import at `MainActivity.kt:25`. (Earlier revisions of this file wrongly claimed it was missing.)
+- **The AI layer does not work.** No `.env` exists, so `BuildConfig.ZENAI_API_KEY` is the `MY_ZENAI_API_KEY` placeholder and every command falls through to a 3-string keyword matcher with hardcoded times. `api.zen.ai/v1/chat/completions` returns 404. See `REQUIREMENTS.md` §2.
+- **Notifications are silently dead on Android 13+**: `POST_NOTIFICATIONS` is declared but never requested.
+- **Alarms do not survive reboot**: no `BOOT_COMPLETED` receiver. Reminder and alarm PendingIntents also collide on request code (`MainViewModel.kt:98,103`).
 - **Remove `signingConfig = signingConfigs.getByName("debugConfig")`** from `app/build.gradle.kts:49` before building locally unless you have the `debug.keystore` file. This is noted in README step 5.
 - **Room `fallbackToDestructiveMigration()`**: Changing the entity schema will drop all user data. Bump `version` in `AppDatabase.kt` only when you intend this.
 - **`google-services.json` not required**: `gradle.properties` has `googleServices.missing.passthrough=true` and `app/build.gradle.kts` sets `MissingGoogleServicesStrategy.WARN`. Firebase AI (Gemini via Firebase) is a dependency but unused — actual Gemini calls go through raw OkHttp.

@@ -26,4 +26,12 @@
   - `ui/`:
     - `MainViewModel.kt`: MVVM StateFlow manager.
     - `theme/`: Bento Grid color scheme and typography.
-    - `components/`: Bento Grid UI cards (`BentoHeader`, `BentoTodayFocusCard`, `BentoNextEventCard`, `BentoActiveAlarmCard`, `BentoContextualConfirmationCard`, `BentoTabsSection`, `BentoRecordActionBar`, `BentoPromptInputDialog`, `BentoSettingsSection`, `SettingsViewModel`).
+    - `components/`: Bento Grid UI cards (`BentoHeader`, `BentoTodayFocusCard`, `BentoNextEventCard`, `BentoActiveAlarmCard` — note: defined inside `BentoNextEventCard.kt`, not its own file — `BentoContextualConfirmationCard`, `BentoTabsSection`, `BentoRecordActionBar`, `BentoPromptInputDialog`, `BentoSettingsSection`, `SettingsViewModel`).
+
+## v1 plan
+See `REQUIREMENTS.md` for the full v1 architecture and phased implementation guide.
+Summary of what changes: Gemini Live API (native audio, real-time, barge-in) via Vertex AI
+behind a Supabase Edge Function proxy; Supabase Postgres + RLS with Room as an offline
+cache; multi-provider calendar (CalendarContract, Google Calendar API, iCloud CalDAV);
+default-assistant-role system-wide invocation. zen.ai, NVIDIA Parakeet and Piper TTS are
+all dropped.
