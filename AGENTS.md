@@ -6,7 +6,7 @@ Voice productivity Android app — press-to-talk → AI intent parsing → creat
 ## Stack
 - Kotlin 2.2.10, Jetpack Compose + Material 3 (Bento Grid custom theme)
 - Room (DB name: `talk_to_me_database`, destructive migration on schema change)
-- **zen.ai** API via raw OkHttp for intent parsing (primary), Gemini as fallback (NOT Firebase Vertex AI)
+- **zen.ai** API via raw OkHttp for intent parsing (primary), local NLP rule engine as fallback. `GeminiIntentParser` is dead code (NOT Firebase Vertex AI)
 - NVIDIA Parakeet v3 (STT model, download via settings), Piper TTS (recommended TTS)
 - `SpeechRecognizer` + `TextToSpeech` (both Android platform APIs)
 - Robolectric + Roborazzi for unit/screenshot tests
@@ -35,9 +35,10 @@ Voice productivity Android app — press-to-talk → AI intent parsing → creat
 ./gradlew test --tests "com.example.ExampleUnitTest"
 ```
 
-> **Planning `v1` rewrite in progress — read `REQUIREMENTS.md` first.** It supersedes
+> **v1 rewrite is planned, not implemented — read `REQUIREMENTS.md` first.** It supersedes
 > parts of this file: zen.ai is being replaced by Gemini Live API via Vertex AI behind a
 > Supabase Edge Function proxy, and the Parakeet/Piper download UI is being removed.
+> Its §2 audit (`file:line` refs at commit `8069541`) is the source of truth for what is real vs. fake.
 
 ## Gotchas
 - **No Gradle wrapper in the repo.** Every `./gradlew` command below is unrunnable until one is added (Phase 0). Build-ability is unverified.
@@ -48,7 +49,7 @@ Voice productivity Android app — press-to-talk → AI intent parsing → creat
 - **Alarms do not survive reboot**: no `BOOT_COMPLETED` receiver. Reminder and alarm PendingIntents also collide on request code (`MainViewModel.kt:98,103`).
 - **Remove `signingConfig = signingConfigs.getByName("debugConfig")`** from `app/build.gradle.kts:49` before building locally unless you have the `debug.keystore` file. This is noted in README step 5.
 - **Room `fallbackToDestructiveMigration()`**: Changing the entity schema will drop all user data. Bump `version` in `AppDatabase.kt` only when you intend this.
-- **`google-services.json` not required**: `gradle.properties` has `googleServices.missing.passthrough=true` and `app/build.gradle.kts` sets `MissingGoogleServicesStrategy.WARN`. Firebase AI (Gemini via Firebase) is a dependency but unused — actual Gemini calls go through raw OkHttp.
+- **`google-services.json` not required**: `gradle.properties` has `googleServices.missing.passthrough=true` and `app/build.gradle.kts` sets `MissingGoogleServicesStrategy.WARN`. Firebase AI (Gemini via Firebase) is a dependency but unused — Gemini never runs at all (`GeminiIntentParser` is never instantiated).
 - **Tests run on JVM via Robolectric**, not on device. Roborazzi screenshots output to `app/src/test/screenshots/`. Test class must be annotated `@RunWith(RobolectricTestRunner::class)` and `@Config(sdk = [36])`.
 - **Settings screen**: Tap gear icon in `BentoHeader` to access model downloads (Parakeet v3, Piper TTS) and API key status. `SettingsViewModel` handles download state simulation.
 - **Gradle config cache enabled**: `org.gradle.configuration-cache=true` in `gradle.properties`. Non-relocatable inputs will cause cache misses.

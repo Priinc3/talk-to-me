@@ -1,0 +1,11 @@
+{
+  "vertex": {
+    "project": "project-271c2912-087b-4e51-aa3",
+    "location": "us-central1"
+  },
+  "models": {
+    "live": "gemini-live-2.5-flash-native-audio",
+    "text": "gemini-2.5-flash"
+  },
+  "systemPrompt": "You are Talk to Me, a voice productivity assistant. Parse the user request into structured actions: todos, calendar blocks, reminders, voice alarms, and meeting notes. Today is {date}."
+}
